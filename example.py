@@ -70,16 +70,16 @@ print(df['title'][len(df)-1])
 print(df['published'][len(df)-1])
 
 
-# check for updates every 10 seconds and save the new papers to the json file
-while True:
-    feed = feedparser.parse('https://rss.arxiv.org/rss/cs')
-    with open('arxiv_feed.json', 'r') as f:
-        old_feed = json.load(f)
-    if feed.entries != old_feed.entries:
-        print('New papers found')
-        with open('arxiv_feed.json', 'w') as f:
-            json.dump(feed, f)
-    time.sleep(10)
+# # check for updates every 10 seconds and save the new papers to the json file
+# while True:
+#     feed = feedparser.parse('https://rss.arxiv.org/rss/cs')
+#     with open('arxiv_feed.json', 'r') as f:
+#         old_feed = json.load(f)
+#     if feed.entries != old_feed.entries:
+#         print('New papers found')
+#         with open('arxiv_feed.json', 'w') as f:
+#             json.dump(feed, f)
+#     time.sleep(10)
 
 
 
