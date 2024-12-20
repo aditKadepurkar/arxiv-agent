@@ -1,4 +1,6 @@
 data/
+arxiv_feed.csv
+arxiv_feed.json
 
 
 # Byte-compiled / optimized / DLL files
