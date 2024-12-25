@@ -47,7 +47,7 @@ class TwitterScienceMonitor:
                 
                 await page.wait_for_selector('div[data-testid="primaryColumn"]', state='visible', timeout=30000)
             
-                await page.goto(f'https://twitter.com/{twitter_account}', wait_until='domcontentloaded')
+                await page.goto(f'https://twitter.com/{twitter_account}', wait_until='load', timeout=60000)
                 await page.wait_for_selector('article[data-testid="tweet"]', state='visible', timeout=30000)
                 
                 tweets_data = []
@@ -87,9 +87,26 @@ class TwitterScienceMonitor:
                     tweet_data['urls'] = [await url.get_attribute('href') for url in urls]
 
                     # media
-                    media_elements = await tweet.query_selector_all('img[src^="https://pbs.twimg.com/media/"]')
+                    media_elements = await tweet.query_selector_all('img[src*="https://pbs.twimg.com/card_img/"]')
                     tweet_data['media'] = [await img.get_attribute('src') for img in media_elements]
+                    tweet_data['media type'] = 'image' if media_elements else None
 
+                    if not media_elements:
+                        print('no image')
+                        try:
+                            await tweet.wait_for_selector('video', state='visible', timeout=10000)
+                            media_element = await tweet.query_selector('video')
+                            if media_element:
+                                tweet_data['media'] = await media_element.get_attribute('poster')
+                                tweet_data['media type'] = 'video'
+                            else:
+                                tweet_data['media'] = None
+                                tweet_data['media type'] = None
+                        except Exception as e:
+                            print(f"Video element not found: {str(e)}")
+                            tweet_data['media'] = None
+                            tweet_data['media type'] = None
+                                        
                     # stats
                     repost_button = await tweet.query_selector('button[aria-label*="Repost"]')
                     retweets_text = await repost_button.get_attribute('aria-label')
