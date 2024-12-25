@@ -121,21 +121,13 @@ class TwitterScienceMonitor:
         Subscribe a user to relevant Twitter accounts based on their interests.
         """
         try:
-            # Store user interests
             self.user_interests[user_id] = interests
             
-            # Match interests to accounts
             matching_accounts = self._match_interests_to_accounts(interests)
-            
-            # Get Twitter user IDs for the matching accounts
             account_ids = await self._get_twitter_user_ids(matching_accounts)
             
-            # Store subscriptions
             self.subscribed_users.add(user_id)
-            
-            # Set up tweet rules for these accounts
-            await self._setup_stream_rules(account_ids, user_id)
-            
+                        
             return matching_accounts
             
         except Exception as e:
@@ -146,14 +138,12 @@ class TwitterScienceMonitor:
         """Match user interests to Twitter accounts."""
         matching_accounts = set()
         
-        # Process keywords
         for keyword in interests.get('keywords', []):
             keyword = keyword.lower()
             for account, topics in self.research_accounts.items():
                 if any(keyword in topic.lower() for topic in topics):
                     matching_accounts.add(account)
         
-        # Process publications and authors similarly
         for publication in interests.get('publications', []):
             publication = publication.lower()
             for account in self.research_accounts:
@@ -164,61 +154,12 @@ class TwitterScienceMonitor:
 
    
 
-    
-
-    async def start_stream(self):
-        """Start monitoring tweets."""
-        class TweetPrinter(tweepy.StreamingClient):
-            def on_tweet(self, tweet):
-                self._process_tweet(tweet)
-                
-            def _process_tweet(self, tweet):
-                # Process and store tweet
-                tweet_data = {
-                    'id': tweet.id,
-                    'text': tweet.text,
-                    'author_id': tweet.author_id,
-                    'created_at': tweet.created_at.isoformat(),
-                }
-                
-                # Store tweet for relevant subscribed users
-                self._store_tweet(tweet_data)
-                
-                # Trigger notifications
-                self._send_notifications(tweet_data)
-                
-            def _store_tweet(self, tweet_data):
-                # Implement tweet storage (e.g., in a database)
-                pass
-                
-            def _send_notifications(self, tweet_data):
-                # Implement notification system
-                pass
-
-        # Start streaming
-        printer = TweetPrinter(os.getenv('TWITTER_BEARER_TOKEN'))
-        printer.filter(
-            tweet_fields=['created_at', 'author_id'],
-            expansions=['author_id']
-        )
-
-    async def stop_stream(self):
-        """Stop monitoring tweets."""
-        if self.streaming_client:
-            self.streaming_client.disconnect()
-
 async def test_fetch_tweets():
     # Initialize monitor with mock data
     research_accounts = {"@nature": ["science", "nature"]}
     keywords = ["science", "nature"]
     monitor = TwitterScienceMonitor(research_accounts, keywords)
-    
-    # Subscribe a user to the mock account
-    user_interests = {
-        'keywords': ['science'],
-        'publications': [],
-        'authors': ['naturenews']
-    }
+
     # subscribed_accounts = await monitor.subscribe_user('test_user', user_interests)
     subscribed_accounts = {'@nature'}
     print(f"Subscribed accounts: {subscribed_accounts}")
