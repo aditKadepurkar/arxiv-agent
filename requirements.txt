@@ -1,3 +1,0 @@
-openreview-py
-python-dotenv
-playwright
