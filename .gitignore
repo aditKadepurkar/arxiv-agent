@@ -1,7 +1,7 @@
 data/
 arxiv_feed.csv
 arxiv_feed.json
-
+*.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

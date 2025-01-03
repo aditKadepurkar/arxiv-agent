@@ -169,7 +169,7 @@ class TwitterScienceMonitor:
                     
         return matching_accounts
 
-   
+
 
 async def test_fetch_tweets():
     # Initialize monitor with mock data
