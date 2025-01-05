@@ -107,17 +107,32 @@ def test_abstract(page: Page):
             print("bu title")
             print(abstract_page.title())
 
-        # Use a CSS selector to locate the abstract description
-        # abstract_selector = "div.note_contents"
-        # page.wait_for_selector(abstract_selector)
 
-        # number_of_abstracts = page.locator(abstract_selector).count()
-        # print(f"Number of abstracts found: {number_of_abstracts}")
-        
-        
-        # # Extract the abstract description
-        # abstract = page.locator(abstract_selector)
-        
-        # # Print the extracted abstract
-        # print("Extracted Abstract:")
-        # print(abstract.nth(1).text_content())
+            fields = abstract_page.locator("div.note_contents span.note_content_field")
+            for j in range(fields.count()):
+                field_text = fields.nth(j).text_content().strip()
+                if "Keywords:" in field_text:
+                    value_element = fields.nth(j).locator("..").locator(".note_content_value")
+                    if value_element.count() > 0:
+                        value_text = value_element.first.inner_text().strip()
+                        print(f"Keywords: {value_text}")
+                if "Abstract:" in field_text:
+                    value_element = fields.nth(j).locator("..").locator(".note_content_value")
+                    if value_element.count() > 0:
+                        value_text = value_element.first.inner_text().strip()
+                        print(f"Abstract: {value_text}")
+
+            other_fields = abstract_page.locator("div.note-content strong.note-content-field")
+            for j in range(other_fields.count()):
+                field_text = other_fields.nth(j).text_content().strip()
+                if "Keywords:" in field_text:
+                    value_element = other_fields.nth(j).locator("..").locator(".note-content-value")
+                    if value_element.count() > 0:
+                        value_text = value_element.first.inner_text().strip()
+                        print(f"Keywords: {value_text}")
+                if "Abstract:" in field_text:
+                    value_element = other_fields.nth(j).locator("..").locator(".note-content-value")
+                    if value_element.count() > 0:
+                        value_text = value_element.first.inner_text().strip()
+                        print(f"Abstract: {value_text}")
+            # print(f'Number of fields: {fields.count()}+{other_fields.count()}')
