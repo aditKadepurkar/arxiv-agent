@@ -51,6 +51,51 @@ async def main():
                     conference_text = await li_elements.nth(1).text_content()
                     print(f"Conference: {conference_text.strip()}")
 
+                # Open a new tab to get the abstract and keywords
+                context = await browser.new_context()
+                abstract_keyword_page = await context.new_page()
+                await abstract_keyword_page.goto(f"https://openreview.net{article_link}")
+                await abstract_keyword_page.wait_for_load_state("networkidle")
+
+                # First condition: Check if fields exist in the first container
+                fields = abstract_keyword_page.locator("div.note_contents span.note_content_field")
+                if await fields.count() > 0: 
+                    for j in range(await fields.count()):
+                        field_text = await fields.nth(j).text_content()
+                        field_text = field_text.strip() if field_text else ""
+                        if "Keywords:" in field_text:
+                            value_element = fields.nth(j).locator("..").locator(".note_content_value")
+                            if await value_element.count() > 0:
+                                keywords = await value_element.first.text_content()
+                                print(f"Keywords: {keywords.strip()}")
+                        if "Abstract:" in field_text:
+                            value_element = fields.nth(j).locator("..").locator(".note_content_value")
+                            if await value_element.count() > 0:
+                                abstract = await value_element.first.text_content()
+                                print(f"Abstract: {abstract.strip()}")
+
+                # Second condition: Check other fields in the alternative structure
+                other_fields = abstract_keyword_page.locator("div.note-content strong.note-content-field")
+                if await other_fields.count() > 0: 
+                    for j in range(await other_fields.count()):
+                        field_text = await other_fields.nth(j).text_content() 
+                        field_text = field_text.strip() if field_text else ""
+                        if "Keywords:" in field_text:
+                            value_element = other_fields.nth(j).locator("..").locator(".note-content-value")
+                            if await value_element.count() > 0:
+                                value_text = await value_element.first.inner_text()
+                                print(f"Keywords: {value_text.strip()}")
+                        if "Abstract:" in field_text:
+                            value_element = other_fields.nth(j).locator("..").locator(".note-content-value")
+                            if await value_element.count() > 0:
+                                abstract = await value_element.first.inner_text()
+                                print(f"Abstract: {abstract.strip()}")
+
+                # Ensure to close the context when done
+                await context.close()
+
+
+
             except Exception as e:
                 print(f"Error processing article #{i + 1}: {e}")
 
